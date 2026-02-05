@@ -2,7 +2,7 @@
 .footer {
   background-color: var(--primary-color);
   color: #ffffff;
-  padding: 80px 0 40px;
+  padding: 50px 0 30px;
   margin-top: 0;
   font-family: "Inter", "Poppins", sans-serif;
 }
@@ -10,7 +10,7 @@
 .footer-content {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
-  gap: 48px;
+  gap: 32px;
 }
 
 .footer-section {
@@ -19,11 +19,11 @@
 
 .footer-section h3 {
   color: #ffffff;
-  margin-bottom: 24px;
-  font-size: 1.25rem;
+  margin-bottom: 16px;
+  font-size: 1.15rem;
   font-weight: 600;
   position: relative;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
 }
 
 .footer-section h3::after {
@@ -38,13 +38,13 @@
 
 .footer-section > p {
   color: rgba(255, 255, 255, 0.75);
-  line-height: 1.75;
-  margin-bottom: 20px;
-  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
 }
 
 .footer-section .company-description {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .footer-links {
@@ -89,18 +89,18 @@
 
 .contact-info p {
   color: rgba(255, 255, 255, 0.75);
-  line-height: 1.8;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 8px;
 }
 
 .contact-info p strong {
   color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
-  min-width: 80px;
+  min-width: 70px;
 }
 
 .social-links {
@@ -129,12 +129,12 @@
 }
 
 .footer-bottom {
-  margin-top: 60px;
-  padding-top: 30px;
+  margin-top: 40px;
+  padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 /* Responsive */

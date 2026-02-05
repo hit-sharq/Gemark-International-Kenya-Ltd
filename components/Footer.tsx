@@ -1,3 +1,4 @@
+
 import Link from "next/link"
 import "./Footer.css"
 
@@ -10,7 +11,7 @@ export default function Footer() {
         <div className="footer-content">
           <div className="footer-section">
             <h3>Gemark International</h3>
-            <p>
+            <p className="company-description">
               Your premier destination for exquisite African woodwork and art. We specialize in black wood ebony carvings,
               rose wood art, traditional masks, antiques, gemstones, and authentic African jewellery sourced from Kenya.
             </p>
@@ -82,12 +83,10 @@ export default function Footer() {
           <div className="footer-section">
             <h3>Contact Us</h3>
             <div className="contact-info">
-              <p><strong>Location</strong> Two Rivers Mall, Limuru Road</p>
-              <p><strong></strong> Nairobi, Kenya</p>
-              <p><strong>Phone</strong> +254 727 205 718</p>
-              <p><strong>Email</strong> gemark</p>
-              <p><strong>Hours</strong> Mon - Sat, 8am - 8pm</p>
-              <p><strong></strong> Sun, 11am - 6pm</p>
+              <p><strong>Location:</strong> Two Rivers Mall, Limuru Road, Nairobi</p>
+              <p><strong>Phone:</strong> +254 727 205 718</p>
+              <p><strong>Email:</strong> gemarkinternationalkltd@gmail.com</p>
+              <p><strong>Hours:</strong> Mon - Sat: 8am - 8pm | Sun: 11am - 6pm</p>
             </div>
           </div>
         </div>
@@ -99,3 +98,4 @@ export default function Footer() {
     </footer>
   )
 }
+
