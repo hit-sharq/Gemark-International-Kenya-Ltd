@@ -5,26 +5,16 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import { useTheme } from "next-themes"
-import { isAdmin } from "@/lib/auth"
 import { useCart } from "@/contexts/CartContext"
 import { ShoppingCart, Heart } from "lucide-react"
 import { useWishlist } from "@/contexts/WishlistContext"
 import NotificationBell from "./NotificationBell"
 import "./Header.css"
 
-interface ArtisanData {
-  id: string
-  shopName: string | null
-  shopSlug: string | null
-  status: string
-}
-
 const Header = () => {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isUserAdmin, setIsUserAdmin] = useState(false)
-  const [isArtisan, setIsArtisan] = useState(false)
-  const [artisanData, setArtisanData] = useState<ArtisanData | null>(null)
   const { theme, setTheme } = useTheme()
   const { itemCount, openCart } = useCart()
   const { itemCount: wishlistCount, openWishlist } = useWishlist()
@@ -53,33 +43,7 @@ const Header = () => {
       }
     }
 
-    const checkArtisanStatus = async () => {
-      try {
-        const response = await fetch("/api/artisans/me")
-        if (response.ok) {
-          const data = await response.json()
-          setIsArtisan(true)
-          setArtisanData({
-            id: data.id,
-            shopName: data.shopName,
-            shopSlug: data.shopSlug,
-            status: data.status,
-          })
-        } else if (response.status === 404) {
-          // User is not registered as an artisan - this is expected for most users
-          setIsArtisan(false)
-          setArtisanData(null)
-        }
-        // For 403 (pending/rejected), user is not an approved artisan
-      } catch (error) {
-        // Silently fail - user is not an artisan or network error
-        setIsArtisan(false)
-        setArtisanData(null)
-      }
-    }
-
     checkAdminStatus()
-    checkArtisanStatus()
   }, [])
 
   return (
@@ -102,11 +66,6 @@ const Header = () => {
               <li className={isActive("/")}>
                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                   Home
-                </Link>
-              </li>
-              <li className={isActive("/shop")}>
-                <Link href="/shop" onClick={() => setMobileMenuOpen(false)}>
-                  Shops
                 </Link>
               </li>
               <li className={isActive("/gallery")}>
@@ -145,7 +104,7 @@ const Header = () => {
 
               <SignedIn>
                 <div className="user-section">
-                  {/* Admin Dashboard - Highest priority */}
+                  {/* Admin Dashboard */}
                   {isUserAdmin && (
                     <Link
                       href="/dashboard"
@@ -153,17 +112,6 @@ const Header = () => {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Admin
-                    </Link>
-                  )}
-
-                  {/* Artisan Links - For approved artisans */}
-                  {isArtisan && artisanData?.status === "APPROVED" && (
-                    <Link
-                      href="/artisan/dashboard"
-                      className={`dashboard-link artisan-dashboard-link ${isActive("/artisan/dashboard")}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      🏪 Shop
                     </Link>
                   )}
 
