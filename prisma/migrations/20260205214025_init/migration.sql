@@ -309,6 +309,20 @@ CREATE TABLE "Notification" (
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "ExchangeRate" (
+    "id" TEXT NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'USD_KES',
+    "rate" DOUBLE PRECISION NOT NULL,
+    "source" TEXT DEFAULT 'manual',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "updatedBy" TEXT,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ExchangeRate_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 
@@ -371,6 +385,9 @@ CREATE UNIQUE INDEX "Wishlist_userId_key" ON "Wishlist"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "WishlistItem_wishlistId_artListingId_key" ON "WishlistItem"("wishlistId", "artListingId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ExchangeRate_currency_isActive_key" ON "ExchangeRate"("currency", "isActive");
 
 -- AddForeignKey
 ALTER TABLE "ArtListing" ADD CONSTRAINT "ArtListing_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

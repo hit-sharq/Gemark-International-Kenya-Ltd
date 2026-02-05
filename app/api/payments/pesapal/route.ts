@@ -36,11 +36,30 @@ function getConfig(): PesaPalConfig {
   };
 }
 
-// Exchange rate: USD to KES (adjust as needed)
-const USD_TO_KES_RATE = 130;
+// Exchange rate: USD to KES - will be fetched from database
+const DEFAULT_USD_TO_KES_RATE = 130;
 
-function convertUsdToKes(usdAmount: number): number {
-  return Math.round(usdAmount * USD_TO_KES_RATE);
+async function getExchangeRate(): Promise<number> {
+  try {
+    const exchangeRate = await prisma.exchangeRate.findFirst({
+      where: {
+        currency: 'USD_KES',
+        isActive: true,
+      },
+    });
+
+    if (exchangeRate && exchangeRate.rate > 0) {
+      return exchangeRate.rate;
+    }
+  } catch (error) {
+    console.error('[PesaPal] Error fetching exchange rate:', error);
+  }
+  
+  return DEFAULT_USD_TO_KES_RATE;
+}
+
+function convertUsdToKes(usdAmount: number, rate: number): number {
+  return Math.round(usdAmount * rate);
 }
 
 // ============================================
@@ -325,6 +344,7 @@ interface OrderSubmissionParams {
 async function submitOrder(
   config: PesaPalConfig,
   token: string,
+  exchangeRate: number,
   params: OrderSubmissionParams
 ): Promise<{ success: boolean; redirectUrl?: string; orderTrackingId?: string; error?: string }> {
   const channel = params.paymentMethod ? getPesaPalChannel(params.paymentMethod) : 'ALL';
@@ -333,8 +353,8 @@ async function submitOrder(
   // Convert USD to KES if needed (M-Pesa payments)
   let convertedAmount: number;
   if (currency === 'KES') {
-    // Convert from USD to KES
-    convertedAmount = convertUsdToKes(params.amount);
+    // Convert from USD to KES using the provided exchange rate
+    convertedAmount = convertUsdToKes(params.amount, exchangeRate);
   } else {
     // Use USD amount as-is
     convertedAmount = round2(params.amount);
@@ -346,6 +366,7 @@ async function submitOrder(
     currency,
     channel,
     items: params.lineItems.length,
+    exchangeRate,
   });
 
   const payload: any = {
@@ -725,7 +746,11 @@ export async function POST(req: NextRequest) {
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    // 15. Submit Order to PesaPal
+    // 15. Get Exchange Rate
+    const exchangeRate = await getExchangeRate();
+    console.log('[PesaPal] Using exchange rate:', exchangeRate);
+
+    // 16. Submit Order to PesaPal
     console.log('[PesaPal] Submitting order to PesaPal...');
     const notificationId = ipnResult.ipnId;
     if (!notificationId) {
@@ -743,7 +768,7 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    const submitResult = await submitOrder(config, accessToken, {
+    const submitResult = await submitOrder(config, accessToken, exchangeRate, {
       orderId: order?.id || `order_${Date.now()}`,
       currency: 'USD',
       amount: total,

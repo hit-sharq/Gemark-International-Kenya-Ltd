@@ -14,9 +14,10 @@ import "./dashboard.css"
 import { createArtListing, toggleFeatured, deleteArtListing } from "../actions/art-actions"
 import { deleteBlogPost } from "../actions/blog-actions"
 import { deleteTeamMember } from "../actions/team-actions"
+import { updateExchangeRate } from "../actions/admin-actions"
 import { cloudinaryLoader } from "@/lib/cloudinary"
 
-type ActiveTabType = "orders" | "art" | "upload" | "blog" | "team" | "categories"
+type ActiveTabType = "orders" | "art" | "upload" | "blog" | "team" | "categories" | "exchange-rate"
 
 interface ArtListing {
   id: string
@@ -87,6 +88,12 @@ export default function Dashboard() {
   const [selectedArtId, setSelectedArtId] = useState("")
   const [isTeamMemberModalOpen, setIsTeamMemberModalOpen] = useState(false)
   const [selectedTeamMemberId, setSelectedTeamMemberId] = useState("")
+  const [exchangeRate, setExchangeRate] = useState<{ rate: number; source: string; lastUpdated: string | null }>({
+    rate: 130.00,
+    source: 'default',
+    lastUpdated: null,
+  })
+  const [exchangeRateLoading, setExchangeRateLoading] = useState(false)
 
   useEffect(() => {
     if (activeTab && window.location.pathname === "/dashboard") {
@@ -125,6 +132,7 @@ export default function Dashboard() {
       else if (activeTab === "blog") fetchBlogPosts()
       else if (activeTab === "team") fetchTeamMembers()
       else if (activeTab === "categories" || activeTab === "upload") fetchCategories()
+      else if (activeTab === "exchange-rate") fetchExchangeRate()
     }
   }, [activeTab, isAdmin, isLoading])
 
@@ -199,6 +207,27 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error fetching categories:", error)
       setCategories([])
+    }
+  }
+
+  const fetchExchangeRate = async () => {
+    setExchangeRateLoading(true)
+    try {
+      const response = await fetch("/api/settings/exchange-rate")
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data) {
+          setExchangeRate({
+            rate: data.data.rate || 130.00,
+            source: data.data.source || 'default',
+            lastUpdated: data.data.lastUpdated ? new Date(data.data.lastUpdated).toLocaleString() : null,
+          })
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching exchange rate:", error)
+    } finally {
+      setExchangeRateLoading(false)
     }
   }
 
@@ -395,6 +424,9 @@ export default function Dashboard() {
             </button>
             <button className={`tab-button ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
               Categories
+            </button>
+            <button className={`tab-button ${activeTab === "exchange-rate" ? "active" : ""}`} onClick={() => setActiveTab("exchange-rate")}>
+              Exchange Rate
             </button>
           </div>
 
@@ -763,6 +795,99 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+
+          {/* Exchange Rate Management Tab */}
+          {activeTab === "exchange-rate" && (
+            <div className="exchange-rate-tab">
+              <h2>Exchange Rate Management</h2>
+              <p className="tab-description">
+                Update the USD to KES exchange rate used for M-Pesa payments. 
+                This rate is applied automatically to all checkout calculations.
+              </p>
+              
+              <div className="exchange-rate-card">
+                <div className="current-rate-display">
+                  <h3>Current Exchange Rate</h3>
+                  <div className="rate-value">
+                    <span className="rate-currency">1 USD = </span>
+                    <span className="rate-number">{exchangeRate.rate.toFixed(2)} KES</span>
+                  </div>
+                  {exchangeRate.lastUpdated && (
+                    <p className="last-updated">
+                      Last updated: {exchangeRate.lastUpdated}
+                    </p>
+                  )}
+                  <p className="rate-source">
+                    Source: <span className="source-badge">{exchangeRate.source}</span>
+                  </p>
+                </div>
+
+                <div className="update-rate-form">
+                  <h4>Update Exchange Rate</h4>
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault()
+                      const formData = new FormData(e.currentTarget)
+                      const newRate = parseFloat(formData.get('rate') as string)
+                      const source = formData.get('source') as string
+
+                      if (newRate && newRate > 0) {
+                        const result = await updateExchangeRate(newRate, source)
+                        if (result.success) {
+                          setExchangeRate({
+                            rate: newRate,
+                            source: source,
+                            lastUpdated: new Date().toLocaleString(),
+                          })
+                          alert('Exchange rate updated successfully!')
+                        } else {
+                          alert(result.message || 'Failed to update exchange rate')
+                        }
+                      } else {
+                        alert('Please enter a valid exchange rate')
+                      }
+                    }}
+                  >
+                    <div className="form-group">
+                      <label htmlFor="rate">Exchange Rate (USD to KES)</label>
+                      <input
+                        type="number"
+                        id="rate"
+                        name="rate"
+                        step="0.01"
+                        min="0.01"
+                        defaultValue={exchangeRate.rate}
+                        required
+                        placeholder="e.g., 130.00"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="source">Rate Source</label>
+                      <select id="source" name="source" defaultValue={exchangeRate.source}>
+                        <option value="manual">Manual Entry</option>
+                        <option value="bank">Bank Rate</option>
+                        <option value="central_bank">Central Bank Rate</option>
+                        <option value="api">API Rate</option>
+                      </select>
+                    </div>
+                    <button type="submit" className="button" disabled={exchangeRateLoading}>
+                      {exchangeRateLoading ? "Updating..." : "Update Exchange Rate"}
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div className="exchange-rate-info">
+                <h4>Important Notes</h4>
+                <ul>
+                  <li>The exchange rate affects the KES amount displayed during M-Pesa checkout</li>
+                  <li>Changes take effect immediately after updating</li>
+                  <li>For accuracy, update rates daily or when significant changes occur</li>
+                  <li>Consider using Central Bank rates for official transactions</li>
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

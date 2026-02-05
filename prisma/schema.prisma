@@ -384,3 +384,17 @@ model Notification {
   updatedAt   DateTime  @updatedAt
 }
 
+// Exchange Rate Model
+model ExchangeRate {
+  id          String   @id @default(cuid())
+  currency    String   @default("USD_KES") // Currency pair identifier
+  rate        Float    // Exchange rate value (e.g., 130.00 for USD to KES)
+  source      String?  @default("manual") // Source of rate (manual, api, bank)
+  isActive    Boolean  @default(true)     // Whether this is the current active rate
+  updatedBy   String?  // Admin who last updated
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@unique([currency, isActive])
+}
+

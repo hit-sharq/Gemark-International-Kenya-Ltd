@@ -114,3 +114,111 @@ export async function getArtListings() {
     }
   }
 }
+
+// Get current exchange rate
+export async function getExchangeRate() {
+  if (!(await isAdmin())) {
+    return {
+      success: false,
+      message: "Unauthorized. Only admins can view exchange rates.",
+    }
+  }
+
+  try {
+    const exchangeRate = await prisma.exchangeRate.findFirst({
+      where: {
+        currency: 'USD_KES',
+        isActive: true,
+      },
+    })
+
+    if (!exchangeRate) {
+      return {
+        success: true,
+        rate: 130.00, // Default fallback
+        source: 'default',
+        lastUpdated: null,
+      }
+    }
+
+    return {
+      success: true,
+      rate: exchangeRate.rate,
+      source: exchangeRate.source,
+      lastUpdated: exchangeRate.updatedAt,
+      currency: exchangeRate.currency,
+    }
+  } catch (error) {
+    console.error("Error fetching exchange rate:", error)
+    return {
+      success: false,
+      message: "There was an error fetching the exchange rate. Please try again.",
+    }
+  }
+}
+
+// Update exchange rate
+export async function updateExchangeRate(rate: number, source: string = 'manual') {
+  if (!(await isAdmin())) {
+    return {
+      success: false,
+      message: "Unauthorized. Only admins can update exchange rates.",
+    }
+  }
+
+  try {
+    // Validate rate
+    if (typeof rate !== 'number' || rate <= 0) {
+      return {
+        success: false,
+        message: "Valid exchange rate is required",
+      }
+    }
+
+    const { userId } = await auth()
+    if (!userId) {
+      return {
+        success: false,
+        message: "User not authenticated",
+      }
+    }
+
+    // Use upsert to handle the unique constraint - update existing or create new
+    const exchangeRate = await prisma.exchangeRate.upsert({
+      where: {
+        currency_isActive: {
+          currency: 'USD_KES',
+          isActive: true,
+        },
+      },
+      update: {
+        rate: rate,
+        source: source,
+        updatedBy: userId,
+        updatedAt: new Date(),
+      },
+      create: {
+        currency: 'USD_KES',
+        rate: rate,
+        source: source,
+        isActive: true,
+        updatedBy: userId,
+      },
+    })
+
+    revalidatePath("/dashboard")
+
+    return {
+      success: true,
+      message: "Exchange rate updated successfully",
+      rate: exchangeRate.rate,
+      lastUpdated: exchangeRate.updatedAt,
+    }
+  } catch (error) {
+    console.error("Error updating exchange rate:", error)
+    return {
+      success: false,
+      message: "There was an error updating the exchange rate. Please try again.",
+    }
+  }
+}

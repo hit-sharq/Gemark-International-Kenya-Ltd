@@ -36,8 +36,8 @@ interface ShippingInfo {
   countryCode: string;
 }
 
-// Exchange rate: USD to KES
-const USD_TO_KES_RATE = 130;
+// Exchange rate: USD to KES (will be fetched from API)
+let USD_TO_KES_RATE = 130; // Default fallback, will be updated from API
 
 // PesaPal Checkout Form
 interface PesaPalCheckoutFormProps {
@@ -60,6 +60,7 @@ interface PesaPalCheckoutFormProps {
   tax: number;
   totalUSD: number;
   subtotal: number;
+  exchangeRate: number;
 }
 
 function PesaPalCheckoutForm({ 
@@ -71,7 +72,8 @@ function PesaPalCheckoutForm({
   shippingCost,
   tax,
   totalUSD,
-  subtotal: parentSubtotal
+  subtotal: parentSubtotal,
+  exchangeRate
 }: PesaPalCheckoutFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -82,9 +84,8 @@ function PesaPalCheckoutForm({
   // Use subtotal from props (calculated in parent)
   const subtotal = parentSubtotal;
 
-  // Exchange rate: USD to KES (used only for display)
-  const USD_TO_KES_RATE = 130;
-  const totalKES = Math.round(totalUSD * USD_TO_KES_RATE);
+  // Use exchange rate from props (fetched from API)
+  const totalKES = Math.round(totalUSD * exchangeRate);
 
   // Validate M-Pesa phone number
   const validatePhoneNumber = (phone: string): boolean => {
@@ -351,12 +352,34 @@ export default function CheckoutPage() {
     countryCode: 'US',
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState<number>(130);
+
+  // Fetch exchange rate on component mount
+  useEffect(() => {
+    async function fetchExchangeRate() {
+      try {
+        const response = await fetch('/api/settings/exchange-rate');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.rate) {
+            const rate = data.data.rate;
+            USD_TO_KES_RATE = rate;
+            setExchangeRate(rate);
+            console.log('[Checkout] Exchange rate fetched:', rate);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching exchange rate:', error);
+      }
+    }
+    fetchExchangeRate();
+  }, []);
 
   // Calculate totals
   const shippingCost = selectedShipping ? selectedShipping.price : 25;
   const tax = subtotal * 0.08;
   const totalUSD = subtotal + shippingCost + tax;
-  const totalKES = Math.round(totalUSD * USD_TO_KES_RATE);
+  const totalKES = Math.round(totalUSD * exchangeRate);
 
   // Fetch shipping options when country changes
   const fetchShippingOptions = async (countryCode: string) => {
@@ -636,6 +659,7 @@ export default function CheckoutPage() {
                   tax={tax}
                   totalUSD={totalUSD}
                   subtotal={subtotal}
+                  exchangeRate={exchangeRate}
                 />
               </div>
             </div>
