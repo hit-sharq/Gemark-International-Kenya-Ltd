@@ -158,7 +158,7 @@ export default function Home() {
           </div>
           <div className="hero-image">
             <Image
-              src="/images/Abstract%20Portrait%20Colorful%20Painting%20%23AP013.jpeg"
+              src="/images/_ (28).jpeg"
               alt="Exquisite African Wood Carving"
               width={500}
               height={600}

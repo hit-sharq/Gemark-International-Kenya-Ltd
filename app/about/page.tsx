@@ -1,8 +1,10 @@
+
 import MainLayout from "components/MainLayout"
 import "./about.css"
 import { getTeamMembers } from "../actions/team-actions"
 import TeamMemberImage from "components/TeamMemberImage"
 import { prisma } from "lib/prisma"
+import Link from "next/link"
 
 type GalleryImage = {
   image: string
@@ -83,7 +85,7 @@ export default async function About() {
                 </p>
 
                 <h3>What We Offer</h3>
-                <ul>
+                <ul className="offer-list">
                   <li><strong>Black Wood Ebony Carvings:</strong> Exquisite sculptures and decorative pieces carved from premium African ebony</li>
                   <li><strong>Rose Wood Art:</strong> Beautiful carvings and artworks crafted from fragrant and visually stunning African rosewood</li>
                   <li><strong>Traditional Masks:</strong> Authentic ceremonial and decorative masks from various Kenyan and East African cultures</li>
@@ -114,9 +116,40 @@ export default async function About() {
                   alt="Gemark International Gallery"
                   width={600}
                   height={400}
-                  style={{ objectFit: "contain" }}
+                  style={{ objectFit: "cover" }}
                 />
               </div>
+            </div>
+          </section>
+
+          <section className="value-section">
+            <h2>Our Values</h2>
+            <div className="value-grid">
+              <div className="value-card">
+                <span className="value-icon">🎨</span>
+                <h3>Authenticity</h3>
+                <p>Every piece we offer is genuine and handcrafted by skilled African artisans, preserving cultural heritage and traditional techniques.</p>
+              </div>
+              <div className="value-card">
+                <span className="value-icon">🌍</span>
+                <h3>Cultural Heritage</h3>
+                <p>We celebrate and preserve the rich artistic traditions of Kenya and East Africa, sharing them with the world.</p>
+              </div>
+              <div className="value-card">
+                <span className="value-icon">🤝</span>
+                <h3>Fair Trade</h3>
+                <p>We build direct relationships with artisans, ensuring fair compensation and sustainable livelihoods for their families.</p>
+              </div>
+              <div className="value-card">
+                <span className="value-icon">✨</span>
+                <h3>Quality Craftsmanship</h3>
+                <p>Each piece is meticulously selected for its exceptional quality, beauty, and artistic merit.</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="sourcing-section">
+            <div className="sourcing-content">
               <div className="sourcing-text">
                 <h2>Our Craftsmanship</h2>
                 <p>
@@ -139,13 +172,13 @@ export default async function About() {
                   polished by skilled lapidaries. Each gemstone is individually selected for its quality and uniqueness.
                 </p>
               </div>
-              <div className="mission-image">
+              <div className="sourcing-image">
                 <TeamMemberImage
-                  src="/images/_ (25).jpeg"
+                  src="/images/2.png"
                   alt="African Artisan Craftsmanship"
                   width={600}
                   height={400}
-                  style={{ objectFit: "contain" }}
+                  style={{ objectFit: "cover" }}
                 />
               </div>
             </div>
@@ -175,8 +208,22 @@ export default async function About() {
               )}
             </div>
           </section>
+
+          <section className="about-cta-section">
+            <h3>Discover the Beauty of African Art</h3>
+            <p>Visit our gallery at Two Rivers Mall to explore our stunning collection of handcrafted woodwork, carvings, masks, antiques, gemstones, and African jewellery.</p>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href="/gallery" className="primary-button" style={{ background: 'linear-gradient(135deg, #e94560, #c73e54)', padding: '16px 32px', fontSize: '1.1rem' }}>
+                Browse Gallery
+              </Link>
+              <Link href="/contact" className="secondary-button" style={{ border: '2px solid #ffffff', color: '#ffffff', padding: '16px 32px', fontSize: '1.1rem', borderRadius: '50px' }}>
+                Contact Us
+              </Link>
+            </div>
+          </section>
         </div>
       </div>
     </MainLayout>
   )
 }
+
