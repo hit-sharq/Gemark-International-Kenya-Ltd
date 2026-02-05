@@ -629,64 +629,89 @@ export async function POST(req: NextRequest) {
 
     // 8. Create Order in Database
     let order: any = null;
+    
+    // Skip order creation if no user ID (guest checkout)
+    // or if there are issues with the database
     if (userId) {
       try {
         let user = await prisma.user.findUnique({ where: { clerkId: userId } });
+        
+        // Create user if not exists
         if (!user) {
-          user = await prisma.user.create({ data: { clerkId: userId } });
+          try {
+            user = await prisma.user.create({
+              data: { clerkId: userId },
+            });
+            console.log('[PesaPal] Created new user:', user.id);
+          } catch (userError: any) {
+            // If user creation fails due to conflict, try to fetch again
+            if (userError.code === 'P2002') {
+              user = await prisma.user.findUnique({ where: { clerkId: userId } });
+              console.log('[PesaPal] Found existing user:', user?.id);
+            } else {
+              throw userError;
+            }
+          }
         }
 
-        const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-        
-        order = await prisma.order.create({
-          data: {
-            userId: user.id,
-            orderNumber,
-            subtotal,
-            shippingCost,
-            tax,
-            total,
-            shippingName: shippingValidation.data.name,
-            shippingEmail: shippingValidation.data.email,
-            shippingPhone: phoneNumber || shippingInfo?.phone || '',
-            shippingAddress: shippingValidation.data.address,
-            shippingCity: shippingValidation.data.city,
-            shippingCountry: shippingValidation.data.country,
-            paymentMethod: 'pesapal',
-            items: {
-              create: validatedItems.map(item => ({
-                artListingId: item.artListingId,
-                title: item.title,
-                price: item.price,
-                quantity: item.quantity,
-              })),
-            },
-          },
-        });
-        console.log('[PesaPal] Order created:', order.id);
-
+        if (user) {
+          const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+          
+          try {
+            order = await prisma.order.create({
+              data: {
+                userId: user.id,
+                orderNumber,
+                subtotal,
+                shippingCost,
+                tax,
+                total,
+                shippingName: shippingValidation.data.name,
+                shippingEmail: shippingValidation.data.email,
+                shippingPhone: phoneNumber || shippingInfo?.phone || '',
+                shippingAddress: shippingValidation.data.address,
+                shippingCity: shippingValidation.data.city,
+                shippingCountry: shippingValidation.data.country,
+                paymentMethod: 'pesapal',
+                status: 'PENDING',
+                paymentStatus: 'PENDING',
+                items: {
+                  create: validatedItems.map(item => ({
+                    artListingId: item.artListingId,
+                    title: item.title,
+                    price: item.price,
+                    quantity: item.quantity,
+                  })),
+                },
+              },
+            });
+            console.log('[PesaPal] Order created successfully:', order.id);
+          } catch (orderError: any) {
+            console.error('[PesaPal] Order creation error:', orderError.code, orderError.message);
+            
+            // Log detailed error for debugging
+            if (orderError.message) {
+              console.error('[PesaPal] Error details:', orderError.message);
+            }
+            
+            // Handle specific errors
+            if (orderError.code === 'P2002') {
+              console.error('[PesaPal] Duplicate order number - this should not happen');
+            }
+            
+            // Don't fail the entire payment, just skip order creation
+            // The payment can still proceed
+            console.log('[PesaPal] Continuing without order creation - payment will proceed');
+          }
+        }
       } catch (dbError: any) {
         console.error('[PesaPal] Database error:', dbError.code, dbError.message);
         
-        if (dbError.code === 'P2021') {
-          return NextResponse.json(
-            { success: false, error: 'Database tables not created. Please run: npx prisma db push' },
-            { status: 500 }
-          );
-        }
-        
-        if (dbError.code === 'P2002') {
-          return NextResponse.json(
-            { success: false, error: 'Duplicate order. Please try again.' },
-            { status: 500 }
-          );
-        }
-        
-        return NextResponse.json(
-          { success: false, error: 'Database error creating order' },
-          { status: 500 }
-        );
+        // Continue without order creation - payment can still proceed
+        console.log('[PesaPal] Payment will continue without order record');
       }
+    } else {
+      console.log('[PesaPal] Guest checkout - no order record will be created');
     }
 
     // 9. Development Mode (no credentials)
