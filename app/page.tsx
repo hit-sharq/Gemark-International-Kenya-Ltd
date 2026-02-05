@@ -313,7 +313,7 @@ export default function Home() {
             </div>
             <div className="about-preview-image">
               <Image
-                src="/images/about art artafriks.jpg"
+                src="/images/1.jpg"
                 alt="African Artisan at Work"
                 width={600}
                 height={400}

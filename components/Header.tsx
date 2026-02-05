@@ -46,6 +46,11 @@ const Header = () => {
     checkAdminStatus()
   }, [])
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
   return (
     <header className="header">
       <div className="container">
