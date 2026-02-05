@@ -32,3 +32,28 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+SMTP_USER = "gemarkinternationalkltd@gmail.com"
+CLOUDINARY_API_SECRET = "pOi1C8su2zZLwMfYhBrKsYpZOq8"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_bmljZS1wb3NzdW0tMjYuY2xlcmsuYWNjb3VudHMuZGV2JA"
+PESAPAL_CONSUMER_KEY = "JXTyZtFVXTesQGLCmoK3Yvwow3F3avl2"
+PESAPAL_CONSUMER_SECRET = "u0ufBeZmqfRtT2TknvqbLUi1I6Q="
+CLERK_SECRET_KEY = "sk_test_wlOwtAcNL3m1y8In6gcsAJ8TadpuOpz7kXmRLFCVpu"
+SMTP_PORT = "587"
+CLOUDINARY_API_KEY = "465287386743922"
+ADMIN_IDS = "user_39FEtYPB33zuRl9kgbNnzOPiU08,user_39Ex6TyWIJGmOlTKAKHfIu188Pu"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME = "da6z6v7uc"
+PESAPAL_ENVIRONMENT = "live"
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET = "Gemark"
+SMTP_PASSWORD = "rdti qgtv quce qykk"
+NEXT_PUBLIC_APP_URL = "https://gemark-international-kenya-ltd.vercel.app/"
+SMTP_HOST = "smtp.gmail.com"
+EMAIL_TO = "gemarkinternationalkltd@gmail.com"
+EMAIL_FROM = "gemarkinternationalkltd@gmail.com"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["npm", "start"]
