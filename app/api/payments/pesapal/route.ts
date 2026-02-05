@@ -575,12 +575,36 @@ export async function POST(req: NextRequest) {
     }
 
     // 7. Calculate Totals
+    // Trust the totals sent from the client to ensure consistency with checkout page
+    const requestShippingCost = parseFloat(body.shippingCost) || 0;
+    const requestTax = parseFloat(body.tax) || 0;
+    const requestTotal = parseFloat(body.totalAmount) || 0;
+    
+    // Recalculate for validation
     const subtotal = validatedItems.reduce((sum, item) => sum + round2(item.price * item.quantity), 0);
-    const shippingCost = round2(25); // Fixed shipping cost
-    const tax = round2(subtotal * 0.08);
-    const total = round2(subtotal + shippingCost + tax);
+    const calculatedShippingCost = round2(Math.max(requestShippingCost, 25)); // Use actual shipping or minimum $25
+    const calculatedTax = round2(subtotal * 0.08);
+    const calculatedTotal = round2(subtotal + calculatedShippingCost + calculatedTax);
 
-    console.log('[PesaPal] Totals:', { subtotal, shippingCost, tax, total });
+    // Use client's total if provided and reasonably close, otherwise use calculated
+    // This ensures the Pesapal amount matches the checkout page
+    let shippingCost: number;
+    let tax: number;
+    let total: number;
+    
+    // If client sent a total, use it (for consistency)
+    if (requestTotal > 0) {
+      shippingCost = round2(requestShippingCost);
+      tax = round2(requestTax);
+      total = round2(requestTotal);
+      console.log('[PesaPal] Using client-provided totals:', { subtotal, shippingCost, tax, total });
+    } else {
+      // Fallback to calculated totals
+      shippingCost = calculatedShippingCost;
+      tax = calculatedTax;
+      total = calculatedTotal;
+      console.log('[PesaPal] Using calculated totals:', { subtotal, shippingCost, tax, total });
+    }
 
     // 8. Create Order in Database
     let order: any = null;

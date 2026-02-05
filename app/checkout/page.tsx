@@ -56,19 +56,34 @@ interface PesaPalCheckoutFormProps {
   onSuccess: (orderId: string, orderNumber: string) => void;
   selectedMethod: 'mpesa' | 'card' | 'bank';
   onMethodChange: (method: 'mpesa' | 'card' | 'bank') => void;
+  shippingCost: number;
+  tax: number;
+  totalUSD: number;
+  subtotal: number;
 }
 
-function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess, selectedMethod, onMethodChange }: PesaPalCheckoutFormProps) {
+function PesaPalCheckoutForm({ 
+  cartItems, 
+  shippingInfo, 
+  onSuccess, 
+  selectedMethod, 
+  onMethodChange,
+  shippingCost,
+  tax,
+  totalUSD,
+  subtotal: parentSubtotal
+}: PesaPalCheckoutFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Calculate total
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.artListing?.price || 0) * item.quantity, 0);
-  const tax = subtotal * 0.08;
-  const totalUSD = subtotal + 25 + tax;
+  // Use subtotal from props (calculated in parent)
+  const subtotal = parentSubtotal;
+
+  // Exchange rate: USD to KES (used only for display)
+  const USD_TO_KES_RATE = 130;
   const totalKES = Math.round(totalUSD * USD_TO_KES_RATE);
 
   // Validate M-Pesa phone number
@@ -152,6 +167,9 @@ function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess, selectedMetho
             country: shippingInfo.country,
           },
           paymentMethod: selectedMethod,
+          shippingCost: totalUSD - subtotal - tax, // Send actual shipping cost
+          tax: tax,
+          totalAmount: totalUSD,
         }),
       });
 
@@ -614,6 +632,10 @@ export default function CheckoutPage() {
                   onSuccess={handleSuccess}
                   selectedMethod={selectedMethod}
                   onMethodChange={setSelectedMethod}
+                  shippingCost={shippingCost}
+                  tax={tax}
+                  totalUSD={totalUSD}
+                  subtotal={subtotal}
                 />
               </div>
             </div>
