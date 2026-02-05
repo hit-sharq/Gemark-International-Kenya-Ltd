@@ -705,7 +705,7 @@ export async function POST(req: NextRequest) {
           }
         }
       } catch (dbError: any) {
-        console.error('[PesaPal] Database error:', dbError.code, dbError.message);
+        console.error('[PesaPal] Database error:', dbError.code, dbError.message, dbError.meta, dbError.stack);
         
         // Continue without order creation - payment can still proceed
         console.log('[PesaPal] Payment will continue without order record');
