@@ -36,6 +36,13 @@ function getConfig(): PesaPalConfig {
   };
 }
 
+// Exchange rate: USD to KES (adjust as needed)
+const USD_TO_KES_RATE = 130;
+
+function convertUsdToKes(usdAmount: number): number {
+  return Math.round(usdAmount * USD_TO_KES_RATE);
+}
+
 // ============================================
 // Token Management
 // ============================================
@@ -280,6 +287,7 @@ function getPesaPalChannel(method: string): string {
 }
 
 function getCurrency(method?: string): string {
+  // Use KES for M-Pesa payments
   return method?.toLowerCase() === 'mpesa' ? 'KES' : 'USD';
 }
 
@@ -320,11 +328,17 @@ async function submitOrder(
   params: OrderSubmissionParams
 ): Promise<{ success: boolean; redirectUrl?: string; orderTrackingId?: string; error?: string }> {
   const channel = params.paymentMethod ? getPesaPalChannel(params.paymentMethod) : 'ALL';
-  const currency = params.currency || 'KES';
+  const currency = params.currency || 'USD';
 
-  // Convert amount for M-Pesa (USD to KES) if needed, otherwise use as is
-  // Note: The system seems to be using KES internally based on the user's setup
-  const convertedAmount = round2(params.amount);
+  // Convert USD to KES if needed (M-Pesa payments)
+  let convertedAmount: number;
+  if (currency === 'KES') {
+    // Convert from USD to KES
+    convertedAmount = convertUsdToKes(params.amount);
+  } else {
+    // Use USD amount as-is
+    convertedAmount = round2(params.amount);
+  }
 
   console.log('[PesaPal] Submitting order:', {
     orderId: params.orderId,
@@ -346,7 +360,7 @@ async function submitOrder(
       first_name: params.billingAddress?.firstName,
       last_name: params.billingAddress?.lastName,
       phone_number: params.billingAddress?.phoneNumber,
-      country_code: params.billingAddress?.countryCode || 'KE',
+      country_code: params.billingAddress?.countryCode || 'US',
     }
   };
 
@@ -707,7 +721,7 @@ export async function POST(req: NextRequest) {
     
     const submitResult = await submitOrder(config, accessToken, {
       orderId: order?.id || `order_${Date.now()}`,
-      currency: 'KES',
+      currency: 'USD',
       amount: total,
       description: `ArtAfrik Order - ${validatedItems.length} item(s)`,
       callbackUrl,
@@ -718,7 +732,7 @@ export async function POST(req: NextRequest) {
         firstName,
         lastName,
         phoneNumber: phoneNumber || shippingInfo?.phone || '',
-        countryCode: 'KE',
+        countryCode: 'US',
       },
       lineItems,
     });

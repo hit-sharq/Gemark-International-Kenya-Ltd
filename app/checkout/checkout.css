@@ -254,6 +254,24 @@
   font-weight: 700;
 }
 
+/* Currency Display */
+.currency-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.currency-display .usd-price {
+  color: #c9a227;
+  font-weight: 700;
+}
+
+.currency-display .kes-price {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
 .summary-divider {
   height: 1px;
   background: #e5e5e5;

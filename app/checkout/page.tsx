@@ -36,6 +36,9 @@ interface ShippingInfo {
   countryCode: string;
 }
 
+// Exchange rate: USD to KES
+const USD_TO_KES_RATE = 130;
+
 // PesaPal Checkout Form
 interface PesaPalCheckoutFormProps {
   cartItems: Array<{
@@ -51,15 +54,22 @@ interface PesaPalCheckoutFormProps {
   }>;
   shippingInfo: ShippingInfo;
   onSuccess: (orderId: string, orderNumber: string) => void;
+  selectedMethod: 'mpesa' | 'card' | 'bank';
+  onMethodChange: (method: 'mpesa' | 'card' | 'bank') => void;
 }
 
-function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess }: PesaPalCheckoutFormProps) {
+function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess, selectedMethod, onMethodChange }: PesaPalCheckoutFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState<'mpesa' | 'card' | 'bank'>('mpesa');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Calculate total
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.artListing?.price || 0) * item.quantity, 0);
+  const tax = subtotal * 0.08;
+  const totalUSD = subtotal + 25 + tax;
+  const totalKES = Math.round(totalUSD * USD_TO_KES_RATE);
 
   // Validate M-Pesa phone number
   const validatePhoneNumber = (phone: string): boolean => {
@@ -192,7 +202,7 @@ function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess }: PesaPalChec
         <button
           type="button"
           className={`method-card ${selectedMethod === 'mpesa' ? 'active' : ''}`}
-          onClick={() => setSelectedMethod('mpesa')}
+          onClick={() => onMethodChange('mpesa')}
         >
           <div className="method-icon">
             <Smartphone size={28} />
@@ -207,7 +217,7 @@ function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess }: PesaPalChec
         <button
           type="button"
           className={`method-card ${selectedMethod === 'card' ? 'active' : ''}`}
-          onClick={() => setSelectedMethod('card')}
+          onClick={() => onMethodChange('card')}
         >
           <div className="method-icon">
             <CreditCard size={28} />
@@ -222,7 +232,7 @@ function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess }: PesaPalChec
         <button
           type="button"
           className={`method-card ${selectedMethod === 'bank' ? 'active' : ''}`}
-          onClick={() => setSelectedMethod('bank')}
+          onClick={() => onMethodChange('bank')}
         >
           <div className="method-icon">
             <Building size={28} />
@@ -290,10 +300,10 @@ function PesaPalCheckoutForm({ cartItems, shippingInfo, onSuccess }: PesaPalChec
       >
         {isProcessing ? (
           <><Loader2 size={20} className="spin" />Processing...</>
+        ) : selectedMethod === 'mpesa' ? (
+          <><Lock size={20} />Pay KSh {totalKES.toLocaleString()} with PesaPal</>
         ) : (
-          <><Lock size={20} />Pay ${(cartItems.reduce((sum, item) => {
-            return sum + (item.artListing?.price || 0) * item.quantity;
-          }, 0) * 1.08).toFixed(2)} with PesaPal</>
+          <><Lock size={20} />Pay ${totalUSD.toFixed(2)} with PesaPal</>
         )}
       </button>
 
@@ -310,6 +320,7 @@ export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
   const [paymentMethod] = useState<PaymentMethod>('pesapal');
+  const [selectedMethod, setSelectedMethod] = useState<'mpesa' | 'card' | 'bank'>('mpesa');
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
@@ -322,6 +333,12 @@ export default function CheckoutPage() {
     countryCode: 'US',
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  // Calculate totals
+  const shippingCost = selectedShipping ? selectedShipping.price : 25;
+  const tax = subtotal * 0.08;
+  const totalUSD = subtotal + shippingCost + tax;
+  const totalKES = Math.round(totalUSD * USD_TO_KES_RATE);
 
   // Fetch shipping options when country changes
   const fetchShippingOptions = async (countryCode: string) => {
@@ -379,15 +396,6 @@ export default function CheckoutPage() {
       fetchShippingOptions(shippingInfo.countryCode);
     }
   }, [shippingInfo.countryCode, subtotal]);
-
-
-  // Get current shipping cost - always charge shipping
-  const shippingCost = selectedShipping 
-    ? selectedShipping.price
-    : 25; // Fixed shipping cost - no free shipping
-  
-  const tax = subtotal * 0.08;
-  const total = subtotal + shippingCost + tax;
 
   const handleSuccess = (orderId: string, orderNumber: string) => {
     clearCart();
@@ -603,7 +611,9 @@ export default function CheckoutPage() {
                 <PesaPalCheckoutForm 
                   cartItems={items} 
                   shippingInfo={shippingInfo} 
-                  onSuccess={handleSuccess} 
+                  onSuccess={handleSuccess}
+                  selectedMethod={selectedMethod}
+                  onMethodChange={setSelectedMethod}
                 />
               </div>
             </div>
@@ -640,7 +650,15 @@ export default function CheckoutPage() {
                   </div>
                   <div className="summary-row"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
                   <div className="summary-divider"></div>
-                  <div className="summary-row total"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                  <div className="summary-row total">
+                    <span>Total</span>
+                    <span className="currency-display">
+                      <span className="usd-price">${totalUSD.toFixed(2)}</span>
+                      {selectedMethod === 'mpesa' && (
+                        <span className="kes-price">/ KSh {totalKES.toLocaleString()}</span>
+                      )}
+                    </span>
+                  </div>
                 </div>
                 <div className="secure-badge">
                   <Lock size={16} />Secure Checkout with PesaPal
