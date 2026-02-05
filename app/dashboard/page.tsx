@@ -824,6 +824,13 @@ export default function Dashboard() {
 
                 <div className="update-rate-form">
                   <h4>Update Exchange Rate</h4>
+                  {message && (
+                    <div className={`message ${message.type}`}>
+                      <span>{message.type === "success" ? "✓ " : "⚠ "}</span>
+                      <span style={{ flex: 1, whiteSpace: "pre-line" }}>{message.text}</span>
+                      <button className="message-close" onClick={() => setMessage(null)}>×</button>
+                    </div>
+                  )}
                   <form
                     onSubmit={async (e) => {
                       e.preventDefault()
@@ -832,19 +839,40 @@ export default function Dashboard() {
                       const source = formData.get('source') as string
 
                       if (newRate && newRate > 0) {
-                        const result = await updateExchangeRate(newRate, source)
-                        if (result.success) {
-                          setExchangeRate({
-                            rate: newRate,
-                            source: source,
-                            lastUpdated: new Date().toLocaleString(),
+                        setExchangeRateLoading(true)
+                        setMessage(null)
+                        try {
+                          const result = await updateExchangeRate(newRate, source)
+                          if (result.success) {
+                            setExchangeRate({
+                              rate: newRate,
+                              source: source,
+                              lastUpdated: new Date().toLocaleString(),
+                            })
+                            setMessage({ 
+                              type: "success", 
+                              text: `✓ Exchange rate updated successfully! 1 USD = ${newRate.toFixed(2)} KES` 
+                            })
+                          } else {
+                            setMessage({ 
+                              type: "error", 
+                              text: `✗ Failed to update: ${result.message || "Unknown error occurred. Please try again."}` 
+                            })
+                          }
+                        } catch (error) {
+                          console.error("Error updating exchange rate:", error)
+                          setMessage({ 
+                            type: "error", 
+                            text: "✗ Connection error. Please check your internet connection and try again." 
                           })
-                          alert('Exchange rate updated successfully!')
-                        } else {
-                          alert(result.message || 'Failed to update exchange rate')
+                        } finally {
+                          setExchangeRateLoading(false)
                         }
                       } else {
-                        alert('Please enter a valid exchange rate')
+                        setMessage({ 
+                          type: "error", 
+                          text: "✗ Invalid rate. Please enter a number greater than 0 (e.g., 130.00)" 
+                        })
                       }
                     }}
                   >

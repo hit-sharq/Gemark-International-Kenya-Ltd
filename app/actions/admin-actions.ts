@@ -162,16 +162,24 @@ export async function updateExchangeRate(rate: number, source: string = 'manual'
   if (!(await isAdmin())) {
     return {
       success: false,
-      message: "Unauthorized. Only admins can update exchange rates.",
+      message: "Unauthorized. Only administrators can update exchange rates.",
     }
   }
 
   try {
     // Validate rate
-    if (typeof rate !== 'number' || rate <= 0) {
+    if (typeof rate !== 'number' || isNaN(rate) || rate <= 0) {
       return {
         success: false,
-        message: "Valid exchange rate is required",
+        message: "Invalid exchange rate. Please enter a positive number greater than 0.",
+      }
+    }
+
+    // Validate rate range (reasonable bounds: 50-500 KES per USD)
+    if (rate < 50 || rate > 500) {
+      return {
+        success: false,
+        message: `Exchange rate ${rate.toFixed(2)} seems unusual. Current market rate is typically between 125-135 KES per USD. Please verify your input.`,
       }
     }
 
@@ -179,7 +187,7 @@ export async function updateExchangeRate(rate: number, source: string = 'manual'
     if (!userId) {
       return {
         success: false,
-        message: "User not authenticated",
+        message: "Authentication error. Please sign out and sign in again.",
       }
     }
 
@@ -207,18 +215,35 @@ export async function updateExchangeRate(rate: number, source: string = 'manual'
     })
 
     revalidatePath("/dashboard")
+    revalidatePath("/checkout")
 
     return {
       success: true,
-      message: "Exchange rate updated successfully",
+      message: "Exchange rate updated successfully!",
       rate: exchangeRate.rate,
       lastUpdated: exchangeRate.updatedAt,
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating exchange rate:", error)
+    
+    // Handle specific Prisma errors
+    if (error.code === 'P2002') {
+      return {
+        success: false,
+        message: "A database conflict occurred. Another admin may have just updated the rate. Please try again.",
+      }
+    }
+    
+    if (error.code === 'P2025') {
+      return {
+        success: false,
+        message: "Database record not found. Please refresh the page and try again.",
+      }
+    }
+    
     return {
       success: false,
-      message: "There was an error updating the exchange rate. Please try again.",
+      message: "An unexpected error occurred while updating the exchange rate. Please try again or contact support if the problem persists.",
     }
   }
 }
