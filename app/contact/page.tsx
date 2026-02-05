@@ -302,7 +302,7 @@ export default function Contact() {
                 <div className="detail-item">
                   <strong>Email:</strong>
                   <p>
-                    <a href="mailto:info@gemark.co.ke">info@gemark.co.ke</a>
+                    <a href="mailto:info@gemark.co.ke">gemarkinternationalkltd@gmail.com</a>
                   </p>
                 </div>
                 <div className="detail-item">
