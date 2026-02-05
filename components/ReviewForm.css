@@ -1,0 +1,147 @@
+/* Review Form Styles */
+.review-form {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.review-form h3 {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.review-form .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.review-form .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.9375rem;
+}
+
+.review-form input[type="text"],
+.review-form textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.review-form input[type="text"]:focus,
+.review-form textarea:focus {
+  outline: none;
+  border-color: #c9a227;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+}
+
+.review-form input[type="text"]::placeholder,
+.review-form textarea::placeholder {
+  color: #9ca3af;
+}
+
+.review-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: #c9a227;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #b8922a;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Loading State */
+.review-form-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  color: #666;
+}
+
+/* Guest State */
+.review-form-guest {
+  padding: 2rem;
+  text-align: center;
+  background: #fafafa;
+  border-radius: 12px;
+  color: #666;
+}
+
+/* Success State */
+.review-form-success {
+  padding: 2rem;
+  text-align: center;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+}
+
+.review-form-success .success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: #10b981;
+  border-radius: 50%;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.review-form-success h3 {
+  margin: 0 0 0.5rem;
+  color: #166534;
+}
+
+.review-form-success p {
+  margin: 0;
+  color: #166534;
+  font-size: 0.9375rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .review-form {
+    padding: 1rem;
+  }
+}
+

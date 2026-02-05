@@ -1,0 +1,355 @@
+.settings-management {
+  display: flex;
+  min-height: 100vh;
+}
+
+.settings-management .dashboard-sidebar {
+  width: 280px;
+  background: #2c3e50;
+  color: white;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.settings-management .sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.settings-management .sidebar-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.settings-management .sidebar-nav {
+  padding: 16px 0;
+}
+
+.settings-management .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.settings-management .nav-item:hover,
+.settings-management .nav-item.active {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.settings-management .nav-item.active {
+  border-left: 3px solid #9b59b6;
+}
+
+.settings-management .nav-icon {
+  font-size: 1.2rem;
+}
+
+.settings-management .sidebar-footer {
+  padding: 16px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: auto;
+}
+
+.settings-management .dashboard-main {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.settings-management .dashboard-header {
+  margin-bottom: 32px;
+}
+
+.settings-management .dashboard-header h1 {
+  font-size: 1.75rem;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+}
+
+.settings-management .header-subtitle {
+  color: #6c757d;
+  margin: 0;
+}
+
+.settings-management .settings-container {
+  max-width: 800px;
+}
+
+.settings-management .form-section {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.settings-management .section-title {
+  font-size: 1.1rem;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.settings-management .form-group {
+  margin-bottom: 20px;
+}
+
+.settings-management .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.settings-management .form-label {
+  display: block;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.settings-management .form-hint {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.settings-management .form-input,
+.settings-management .form-select,
+.settings-management .form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.settings-management .form-input::placeholder,
+.settings-management .form-textarea::placeholder {
+  color: #999999;
+}
+
+.settings-management .form-input:focus,
+.settings-management .form-select:focus,
+.settings-management .form-textarea:focus {
+  outline: none;
+  border-color: #9b59b6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+}
+
+.settings-management .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.settings-management .form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+.settings-management .read-only-field {
+  background: #f8f9fa;
+  border-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Account Info Card */
+.settings-management .account-info {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  margin-bottom: 24px;
+}
+
+.settings-management .account-info h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+}
+
+.settings-management .info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.settings-management .info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-management .info-icon {
+  font-size: 1.5rem;
+  opacity: 0.8;
+}
+
+.settings-management .info-content span {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.settings-management .info-content strong {
+  font-size: 1rem;
+}
+
+/* Danger Zone */
+.settings-management .danger-zone {
+  border: 2px solid #f8d7da;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 32px;
+}
+
+.settings-management .danger-zone h3 {
+  color: #721c24;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-management .danger-zone p {
+  color: #6c757d;
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+}
+
+.settings-management .btn-danger {
+  background: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-management .btn-danger:hover {
+  background: #c0392b;
+}
+
+/* Form Actions */
+.settings-management .form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.settings-management .btn {
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.settings-management .btn-primary {
+  background: #9b59b6;
+  color: white;
+}
+
+.settings-management .btn-primary:hover {
+  background: #8e44ad;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+}
+
+.settings-management .btn-secondary {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.settings-management .btn-secondary:hover {
+  background: #dee2e6;
+}
+
+.settings-management .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Messages */
+.settings-management .success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-management .error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+/* Loading */
+.settings-management .loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
+  border-top-color: #9b59b6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 40px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-management {
+    flex-direction: column;
+  }
+
+  .settings-management .dashboard-sidebar {
+    width: 100%;
+  }
+
+  .settings-management .dashboard-main {
+    padding: 20px;
+  }
+
+  .settings-management .form-row,
+  .settings-management .form-row-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-management .form-actions {
+    flex-direction: column;
+  }
+
+  .settings-management .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

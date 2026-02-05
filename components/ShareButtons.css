@@ -1,0 +1,155 @@
+/* Share Buttons Styles */
+.share-buttons {
+  position: relative;
+  display: inline-block;
+}
+
+.share-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.share-toggle:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* Size variants */
+.share-sm .share-toggle {
+  padding: 0.5rem;
+}
+
+.share-lg .share-toggle {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+}
+
+/* Share Menu */
+.share-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 240px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.share-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.share-header span {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.875rem;
+}
+
+.close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: #1a1a1a;
+}
+
+.share-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.share-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: none;
+  background: #f9fafb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.share-option:hover {
+  background: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+.share-option.facebook:hover {
+  background: #e7f3ff;
+  color: #1877f2;
+}
+
+.share-option.twitter:hover {
+  background: #e8f5fd;
+  color: #1da1f2;
+}
+
+.share-option.whatsapp:hover {
+  background: #e8f5ea;
+  color: #25d366;
+}
+
+.share-option.copy:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.share-option .check-icon {
+  color: #10b981;
+  font-size: 1.25rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .share-menu {
+    right: -1rem;
+    min-width: 200px;
+  }
+}
+

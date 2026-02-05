@@ -1,0 +1,386 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  slug        String   @unique
+  image       String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  artListings ArtListing[]
+}
+
+model ArtListing {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  material    String? // Wood type, fabric type, etc. (optional, category-specific)
+  region      String
+  size        String
+  images      String[] // Array of image URLs
+  featured    Boolean  @default(false)
+
+  // Artisan relation (optional - not all listings need an artisan)
+  artisanId String?
+  artisan   Artisan? @relation(fields: [artisanId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderRequests OrderRequest[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
+}
+
+model OrderRequest {
+  id           String     @id @default(cuid())
+  name         String
+  email        String
+  location     String
+  message      String?
+  status       String     @default("pending") // pending, approved, shipped, delivered, cancelled
+  userId       String? // Clerk user ID
+  artListingId String
+  artListing   ArtListing @relation(fields: [artListingId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlogPost {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  excerpt       String
+  content       String
+  category      String
+  author        String
+  authorTitle   String?
+  authorImage   String?
+  date          DateTime
+  image         String?
+  tags          String[]
+  featured      Boolean  @default(false)
+  allowComments Boolean  @default(true)
+  status        String   @default("draft") // draft, published
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  title     String
+  bio       String
+  image     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Artisan Registration Status
+enum ArtisanStatus {
+  PENDING // Awaiting admin approval
+  APPROVED // Approved, can manage shop
+  REJECTED // Rejected by admin
+}
+
+// Artisan Model for Multi-Vendor Marketplace
+model Artisan {
+  id String @id @default(cuid())
+
+  // Authentication
+  email   String  @unique
+  clerkId String? @unique // For authentication
+
+  // Registration Details
+  fullName        String
+  phone           String?
+  specialty       String // e.g., "Beadwork", "Woodcarving", "Textiles", "Jewelry", "Paintings"
+  region          String
+  location        String? // Village/city
+  yearsExperience Int?
+
+  // Shop Details (set after approval)
+  shopName   String? @unique
+  shopSlug   String? @unique
+  shopBio    String? @db.Text
+  shopLogo   String?
+  shopBanner String?
+
+  // Social Links
+  website   String?
+  instagram String?
+  facebook  String?
+  whatsapp  String?
+
+  // Approval
+  status          ArtisanStatus @default(PENDING)
+  rejectionReason String?
+  approvedAt      DateTime?
+  approvedBy      String?
+
+  // Account Linking Verification
+  verificationToken  String?
+  verificationExpiry DateTime?
+
+  // Verification
+  isVerified Boolean @default(false)
+
+  // Relations
+  artListings ArtListing[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Cart Model
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique // One cart per user
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// Cart Item Model
+model CartItem {
+  id           String   @id @default(cuid())
+  cartId       String
+  cart         Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  artListingId String
+  artListing   ArtListing @relation(fields: [artListingId], references: [id])
+  quantity     Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([cartId, artListingId])
+}
+
+// Order Status Enum
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// Payment Status Enum
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// Shipment Status Enum
+enum ShipmentStatus {
+  PENDING
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  RETURNED
+  FAILED
+}
+
+// Order Model
+model Order {
+  id                    String        @id @default(cuid())
+  orderNumber           String        @unique
+  userId                String
+  status                OrderStatus   @default(PENDING)
+  subtotal              Float
+  shippingCost          Float         @default(0)
+  tax                   Float         @default(0)
+  total                 Float
+  paymentMethod         String?
+  paymentStatus         PaymentStatus @default(PENDING)
+  stripePaymentIntentId String?
+  mpesaTransactionId    String?
+  pesapalTransactionId  String?
+  pesapalOrderId        String?
+  notes                 String?
+  
+  // Shipping Address
+  shippingName        String?
+  shippingEmail       String?
+  shippingPhone       String?
+  shippingAddress     String?
+  shippingCity        String?
+  shippingCountry     String?
+  
+  items               OrderItem[]
+  shipment            Shipment?     @relation(fields: [shipmentId], references: [id])
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  shipmentId          String?
+}
+
+// Order Item Model
+model OrderItem {
+  id           String     @id @default(cuid())
+  orderId      String
+  order        Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  artListingId String
+  artListing   ArtListing @relation(fields: [artListingId], references: [id])
+  title        String
+  price        Float
+  quantity     Int
+  createdAt    DateTime   @default(now())
+}
+
+// Shipment Model
+model Shipment {
+  id             String  @id @default(cuid())
+  orderId        String? @unique
+  trackingNumber String? @unique
+  carrier        String?
+  shippingMethod String?
+  serviceType    String? // standard, express, economy
+  paymentType    String? // PREPAID, COD
+
+  // Origin (warehouse)
+  originName    String?
+  originAddress String?
+  originPhone   String?
+  originEmail   String?
+
+  // Destination (customer)
+  destinationName    String?
+  destinationAddress String?
+  destinationPhone   String?
+  destinationEmail   String?
+  destinationCity    String?
+  destinationCountry String?
+
+  // Dates
+  estimatedDelivery DateTime?
+  shippedAt         DateTime?
+  pickedUpAt        DateTime?
+  outForDeliveryAt  DateTime?
+  deliveredAt       DateTime?
+
+  // Package info
+  totalWeight  Float?
+  totalValue   Float?
+  packageCount Int    @default(1)
+
+  // Status
+  status   ShipmentStatus @default(PENDING)
+  location String?
+  notes    String?
+  isReturn Boolean        @default(false)
+
+  // Relations
+  items  ShipmentItem[]
+  events ShipmentEvent[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order[]
+
+  @@index([status])
+  @@index([trackingNumber])
+  @@index([createdAt])
+}
+
+// Shipment Item Model (items within a shipment)
+model ShipmentItem {
+  id           String   @id @default(cuid())
+  shipmentId   String
+  shipment     Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  artListingId String
+  title        String
+  quantity     Int      @default(1)
+  weight       Float    @default(0.5)
+  value        Float    @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([shipmentId])
+}
+
+// Shipment Event Model (tracking history)
+model ShipmentEvent {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  status      String
+  statusCode  String
+  description String
+  location    String?
+  timestamp   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([shipmentId])
+  @@index([timestamp])
+}
+
+// Wishlist Model
+model Wishlist {
+  id        String         @id @default(cuid())
+  userId    String         @unique
+  items     WishlistItem[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+// Wishlist Item Model
+model WishlistItem {
+  id           String     @id @default(cuid())
+  wishlistId   String
+  wishlist     Wishlist   @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  artListingId String
+  artListing   ArtListing @relation(fields: [artListingId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@unique([wishlistId, artListingId])
+}
+
+// Notification Model
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String?
+  orderId     String?
+  type        String
+  title       String
+  message     String
+  isRead      Boolean   @default(false)
+  emailSent   Boolean   @default(false)
+  emailSentAt DateTime?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+

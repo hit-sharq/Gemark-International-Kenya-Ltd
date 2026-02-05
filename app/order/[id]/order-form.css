@@ -1,0 +1,147 @@
+.order-request {
+  padding: 60px 0;
+}
+
+.order-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+}
+
+.art-preview {
+  background-color: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  padding-bottom: 20px;
+}
+
+.art-image {
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.art-details {
+  padding: 0 20px;
+}
+
+.art-details h2 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+.art-details p {
+  margin-bottom: 10px;
+}
+
+.order-form-container {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 30px;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-family: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.error {
+  color: var(--error-color);
+  font-size: 0.9rem;
+}
+
+.submit-error {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.submit-button {
+  padding: 15px;
+  font-size: 1.1rem;
+}
+
+.success-message {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-message h2 {
+  color: var(--success-color);
+  margin-bottom: 20px;
+}
+
+.auth-required {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.auth-required h1 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.auth-required p {
+  margin-bottom: 30px;
+}
+
+@media (max-width: 992px) {
+  .order-content {
+    grid-template-columns: 1fr;
+  }
+
+  .art-preview {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .art-image {
+    width: 200px;
+    padding: 0;
+  }
+
+  .art-details {
+    padding: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .art-preview {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .art-image {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
