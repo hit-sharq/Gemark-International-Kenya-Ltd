@@ -81,12 +81,14 @@ export default function Footer() {
 
           <div className="footer-section">
             <h3>Contact Us</h3>
-            <p>Two Rivers Mall, Limuru Road</p>
-            <p>Nairobi, Kenya</p>
-            <p>Phone: +254 727 205 718</p>
-            <p>Email: info@gemark.co.ke</p>
-            <p>Hours: Mon - Sat, 10am - 8pm</p>
-            <p>Sun, 11am - 6pm</p>
+            <div className="contact-info">
+              <p><strong>Location</strong> Two Rivers Mall, Limuru Road</p>
+              <p><strong></strong> Nairobi, Kenya</p>
+              <p><strong>Phone</strong> +254 727 205 718</p>
+              <p><strong>Email</strong> gemark</p>
+              <p><strong>Hours</strong> Mon - Sat, 8am - 8pm</p>
+              <p><strong></strong> Sun, 11am - 6pm</p>
+            </div>
           </div>
         </div>
 

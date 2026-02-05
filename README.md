@@ -1,33 +1,26 @@
-<!-- # 🎨 Gemark International Kenya Ltd
+<!-- # 🪵 Gemark International Kenya Ltd
 
-**Gemark International Kenya Ltd** is your premier destination for authentic African woodwork and art in Nairobi, Kenya. Located at Two Rivers Mall on Limuru Road, we specialize in exquisite black wood ebony carvings, rose wood masterpieces, traditional masks, antiques, gemstones, and African jewellery.
-
----
-
-## 🏪 Our Collections
-
-- **Black Wood Ebony Carvings** - Exquisite sculptures and decorative pieces
-- **Rose Wood Art** - Beautiful carvings with warm, rich tones
-- **Traditional Masks** - Authentic ceremonial and decorative pieces
-- **Antiques** - Rare and valuable historical pieces
-- **Gemstones** - Exquisite African tsavorite, tourmaline, and more
-- **African Jewellery** - Handcrafted traditional and contemporary pieces
+**Gemark International** is a premium e-commerce platform showcasing exquisite African woodwork and art, specializing in black wood ebony carvings, rose wood art, traditional masks, antiques, gemstones, and authentic African jewellery.
 
 ---
 
-## 📍 Location
+## 🏪 About Us
 
-**Two Rivers Mall, Limuru Road**
-Nairobi, Kenya
+Located in the heart of Nairobi at Two Rivers Mall, we curate the finest handcrafted African art pieces from skilled artisans across Kenya and East Africa.
 
-**Contact**: +254 727 205 718
-**Email**: info@gemark.co.ke
+### Our Collections
+- **Black Ebony Carvings** - Premium handcrafted ebony sculptures
+- **Rose Wood Art** - Elegant wooden art pieces
+- **Traditional Masks** - Authentic cultural masks
+- **Antiques** - Vintage and historical pieces
+- **Gemstones** - Raw and polished gemstones
+- **African Jewellery** - Handcrafted jewelry
 
 ---
 
 ## 🌍 Vision
 
-To share the rich cultural heritage and artistic traditions of Kenya and East Africa with collectors and enthusiasts worldwide, while supporting local artisan communities.
+To become Africa's premier destination for authentic, handcrafted woodwork and art, connecting collectors worldwide with Kenya's finest artisans and their extraordinary creations.
 
 ---
 
@@ -35,7 +28,7 @@ To share the rich cultural heritage and artistic traditions of Kenya and East Af
 
 ### Frontend
 - **Next.js 14+** with **TypeScript**
-- **React** with **Zustand** (state management)
+- **React** with modern hooks
 - **Tailwind CSS** + **Custom CSS**
 - **Cloudinary** for image hosting
 - **Lucide React** for icons
@@ -59,7 +52,7 @@ To share the rich cultural heritage and artistic traditions of Kenya and East Af
 ## ✨ Core Features
 
 ### Shopping
-- Browse art by category (Ebony, Rosewood, Masks, Antiques, Gemstones, Jewellery)
+- Browse art by category and collection
 - Shopping cart with persistent storage
 - Wishlist functionality
 - Real-time shipping calculation
@@ -93,8 +86,8 @@ gemark-international/
 │   │   └── ...
 │   ├── checkout/          # Checkout pages
 │   ├── dashboard/         # Admin dashboard
-│   ├── gallery/          # Gallery pages
-│   ├── cart/             # Cart page
+│   ├── gallery/           # Gallery pages
+│   ├── cart/              # Cart page
 │   └── ...
 ├── components/            # React components
 │   ├── ui/              # UI primitives
@@ -113,8 +106,7 @@ gemark-international/
 ├── prisma/              # Database
 │   └── schema.prisma
 ├── hooks/               # Custom React hooks
-├── types/               # TypeScript types
-└── docs/                # Documentation
+└── types/               # TypeScript types
 ```
 
 ---
@@ -186,7 +178,10 @@ Visit `http://localhost:3000`
 
 ### PesaPal Integration
 
-PesaPal supports M-Pesa, Credit/Debit Cards, and Bank Transfer.
+PesaPal supports:
+- **M-Pesa** - Mobile money (Kenya)
+- **Credit/Debit Cards** - Visa, Mastercard
+- **Bank Transfer** - Equity, KCB, etc.
 
 ### Stripe Integration
 
@@ -202,78 +197,9 @@ Kenyan mobile money via STK Push.
 
 ```
 Subtotal = Sum of (item price × quantity)
-Shipping = $25 (flat rate, no free shipping)
+Shipping = Calculated based on destination
 Tax = 8% of subtotal
 Total = Subtotal + Shipping + Tax
-```
-
----
-
-## 🗂️ Database Schema
-
-### Core Models
-
-```prisma
-model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String
-  name      String?
-  orders    Order[]
-  createdAt DateTime @default(now())
-}
-
-model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
-  userId          String
-  status          OrderStatus   @default(PENDING)
-  paymentStatus   PaymentStatus @default(PENDING)
-  subtotal        Float
-  shippingCost    Float
-  tax             Float
-  total           Float
-  // ... shipping and payment fields
-  items           OrderItem[]
-  shipment        Shipment?
-}
-
-model ArtListing {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  price       Float
-  categoryId  String
-  material    String?
-  region      String
-  size        String
-  images      String[]
-  featured    Boolean  @default(false)
-  category    Category @relation(fields: [categoryId], references: [id])
-}
-```
-
----
-
-## 🌐 API Reference
-
-### Payments
-
-#### Create PesaPal Payment
-```bash
-POST /api/payments/pesapal
-Content-Type: application/json
-
-{
-  "cartItems": [...],
-  "shippingInfo": {...},
-  "paymentMethod": "mpesa"
-}
-```
-
-#### Check Payment Status
-```bash
-GET /api/payments/pesapal?orderId=xxx&trackingId=xxx
 ```
 
 ---
@@ -283,49 +209,28 @@ GET /api/payments/pesapal?orderId=xxx&trackingId=xxx
 ### Deploy to Vercel
 
 1. Push to GitHub
-2. Import in Vercel: `https://vercel.com/import/project`
+2. Import in Vercel
 3. Add environment variables
 4. Deploy
 
 ---
 
-## 📝 Scripts
-
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npx prisma studio    # Open Prisma DB GUI
-npx prisma db push   # Push schema to database
-npx prisma generate  # Generate Prisma client
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License.
-
----
-
-## 👤 Contact
+## 📞 Contact
 
 **Gemark International Kenya Ltd**
 
-- **Phone**: +254 727 205 718
-- **Email**: info@gemark.co.ke
-- **Location**: Two Rivers Mall, Limuru Road, Nairobi, Kenya
+- 📍 Two Rivers Mall, Limuru Road, Nairobi, Kenya
+- 📞 +254 727 205 718
+- ✉️ info@gemark.co.ke
+- 🕐 Mon - Sat: 10am - 8pm | Sun: 11am - 6pm
+
+---
+
+## 👤 Developer
+
+**Joshua Mwendwa**
+- Founder & Lead Developer, Gemark International
+- GitHub: https://github.com/hit-sharq
 
 ---
 
@@ -336,5 +241,10 @@ This project is licensed under the MIT License.
 - [PesaPal](https://pesapal.com/)
 - [Stripe](https://stripe.com/)
 - [Clerk](https://clerk.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
  -->

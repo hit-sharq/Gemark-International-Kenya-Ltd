@@ -13,8 +13,6 @@ export default authMiddleware({
     "/blog/(.*)",
     "/api/categories",
     "/api/art-listings",
-    "/api/artisans/register",
-    "/api/artisans/shop/(.*)",
     "/api/payments/pesapal",
     "/api/payments/pesapal/(.*)",
     "/api/pesapal/ipn",
@@ -22,9 +20,6 @@ export default authMiddleware({
     "/api/payments/pesapal/ipn",
     "/api/payments/pesapal/ipn/(.*)",
     "/api/payments/mpesa/callback",
-    "/artisan/register",
-    "/artisan/register/success",
-    "/shop/(.*)",
   ],
 })
 

@@ -1,29 +1,221 @@
+/* Modern Auth Pages Styling */
 .auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--background-color);
-  padding: 20px;
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(201, 169, 98, 0.05) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 440px;
+  position: relative;
+  z-index: 1;
 }
 
 .auth-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .auth-header h1 {
   color: var(--primary-color);
-  font-size: 2.5rem;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
 .auth-header p {
-  color: var(--text-color);
-  font-size: 1.2rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
 }
+
+.auth-card {
+  background: var(--surface-color);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  padding: 48px 40px;
+  border: 1px solid var(--border-color);
+}
+
+/* Clerk customization */
+.auth-card .clerk-sign-in,
+.auth-card .clerk-sign-up {
+  width: 100%;
+}
+
+.auth-card .cl-form-buttonPrimary {
+  background: var(--primary-color) !important;
+  border-radius: 50px !important;
+  padding: 14px 28px !important;
+  font-weight: 500 !important;
+  transition: var(--transition) !important;
+}
+
+.auth-card .cl-form-buttonPrimary:hover {
+  background: var(--secondary-color) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(201, 169, 98, 0.3) !important;
+}
+
+.auth-card .cl-input {
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  border: 1px solid var(--border-color) !important;
+  transition: var(--transition) !important;
+}
+
+.auth-card .cl-input:focus {
+  border-color: var(--secondary-color) !important;
+  box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.1) !important;
+  outline: none !important;
+}
+
+.auth-card .cl-label {
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+}
+
+.auth-card .cl-headerTitle {
+  color: var(--text-primary) !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+.auth-card .cl-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+.auth-card .cl-footerActionLink {
+  color: var(--secondary-color) !important;
+  font-weight: 500 !important;
+}
+
+.auth-card .cl-footerActionLink:hover {
+  color: var(--accent-color) !important;
+}
+
+.auth-card .cl-alert {
+  background: rgba(201, 169, 98, 0.1) !important;
+  border: 1px solid var(--secondary-color) !important;
+  color: var(--text-primary) !important;
+  border-radius: 12px !important;
+}
+
+.auth-card .cl-dividerRow {
+  color: var(--text-muted) !important;
+}
+
+.auth-card .cl-socialButtonsIconButton {
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  transition: var(--transition) !important;
+}
+
+.auth-card .cl-socialButtonsIconButton:hover {
+  border-color: var(--secondary-color) !important;
+  background: rgba(201, 169, 98, 0.05) !important;
+}
+
+/* OAuth buttons */
+.clerk-social-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 12px 20px !important;
+  border-radius: 12px !important;
+}
+
+/* Forgot password link */
+.clerk-forgot-password {
+  color: var(--secondary-color) !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+}
+
+.clerk-forgot-password:hover {
+  color: var(--accent-color) !important;
+}
+
+/* Sign up alternative */
+.auth-alternative {
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-alternative p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.auth-alternative a {
+  color: var(--secondary-color);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.auth-alternative a:hover {
+  color: var(--accent-color);
+}
+
+/* Back to home link */
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+  transition: var(--transition);
+}
+
+.auth-back-link:hover {
+  color: var(--primary-color);
+}
+
+.auth-back-link svg {
+  transition: transform 0.3s ease;
+}
+
+.auth-back-link:hover svg {
+  transform: translateX(-4px);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 20px 16px;
+  }
+
+  .auth-card {
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
+
+  .auth-header h1 {
+    font-size: 1.75rem;
+  }
+}
+
