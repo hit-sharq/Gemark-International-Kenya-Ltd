@@ -446,13 +446,19 @@ async function submitOrder(
         
         // Provide helpful suggestions based on error type
         if (errorData.error?.code === 'amount_exceeds_default_limit') {
-          errorMsg = `${errorMsg} Try using Card payment method or contact PesaPal to increase your M-Pesa transaction limits.`;
+          errorMsg = `${errorMsg}. Try using Card payment method or contact PesaPal to increase your M-Pesa transaction limits.`;
         }
+        
+        // Include raw response for debugging
+        return { 
+          success: false, 
+          error: `PesaPal Error: ${errorMsg} (Code: ${errorData.error?.code || 'N/A'})`,
+          pesapalResponse: text 
+        } as any;
       } catch {
         errorMsg = text.substring(0, 300);
+        return { success: false, error: errorMsg, rawResponse: text } as any;
       }
-      
-      return { success: false, error: errorMsg, details: errorData } as any;
     }
 
     let data: { redirect_url?: string; order_tracking_id?: string };
@@ -882,9 +888,18 @@ export async function POST(req: NextRequest) {
       lineItems,
     });
 
-    if (!submitResult.success) {
+    const result = submitResult as any;
+    if (!result.success) {
+      console.error('[PesaPal] Final error:', result.error);
+      if (result.pesapalResponse) {
+        console.error('[PesaPal] Raw response:', result.pesapalResponse);
+      }
       return NextResponse.json(
-        { success: false, error: `PesaPal error: ${submitResult.error}` },
+        { 
+          success: false, 
+          error: result.error || 'PesaPal payment failed',
+          pesapalResponse: result.pesapalResponse || null
+        },
         { status: 500 }
       );
     }
