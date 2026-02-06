@@ -397,6 +397,9 @@ async function submitOrder(
   }
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     const response = await fetch(`${config.baseUrl}/Transactions/SubmitOrderRequest`, {
       method: 'POST',
       headers: {
@@ -405,37 +408,59 @@ async function submitOrder(
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
 
+    clearTimeout(timeout);
+
     const text = await response.text();
+    console.log('[PesaPal] Raw response status:', response.status);
+    console.log('[PesaPal] Raw response body:', text.substring(0, 1000));
 
     if (!response.ok) {
       console.error('[PesaPal] Submit order failed:', text);
       let errorMsg = 'Order submission failed';
+      let errorData: any = {};
       
       try {
-        const errorData = JSON.parse(text);
-        errorMsg = errorData.error_description || errorData.message || errorData.error || errorMsg;
+        errorData = JSON.parse(text);
+        errorMsg = errorData.error_description || errorData.message || errorData.error || errorData.Error || errorMsg;
+        
+        // Log detailed error info
+        console.error('[PesaPal] Error details:', {
+          status: response.status,
+          error: errorMsg,
+          fullError: errorData
+        });
       } catch {
         errorMsg = text.substring(0, 300);
       }
       
-      return { success: false, error: errorMsg };
+      return { success: false, error: errorMsg, details: errorData } as any;
     }
 
     let data: { redirect_url?: string; order_tracking_id?: string };
     try {
       data = JSON.parse(text);
     } catch {
-      return { success: false, error: 'Invalid JSON in response' };
+      console.error('[PesaPal] Failed to parse response as JSON:', text);
+      return { success: false, error: 'Invalid JSON in PesaPal response', rawResponse: text } as any;
     }
 
     if (!data.redirect_url || !data.order_tracking_id) {
-      console.error('[PesaPal] Missing redirect URL or tracking ID:', data);
-      return { success: false, error: 'Invalid response from PesaPal' };
+      console.error('[PesaPal] Missing redirect URL or tracking ID:', {
+        hasRedirectUrl: !!data.redirect_url,
+        hasTrackingId: !!data.order_tracking_id,
+        fullResponse: data
+      });
+      return { success: false, error: 'Invalid response from PesaPal - missing redirect URL or tracking ID' };
     }
 
-    console.log('[PesaPal] Order submitted:', data.order_tracking_id);
+    console.log('[PesaPal] Order submitted successfully:', {
+      orderTrackingId: data.order_tracking_id,
+      redirectUrl: data.redirect_url
+    });
+    
     return {
       success: true,
       redirectUrl: data.redirect_url,
@@ -443,7 +468,10 @@ async function submitOrder(
     };
 
   } catch (error: any) {
-    console.error('[PesaPal] Network error:', error.message);
+    console.error('[PesaPal] Network error:', error.name, error.message);
+    if (error.name === 'AbortError') {
+      return { success: false, error: 'PesaPal request timed out after 30 seconds' };
+    }
     return { success: false, error: `Network error: ${error.message}` };
   }
 }

@@ -2,7 +2,16 @@
 // This endpoint receives payment status updates from PesaPal
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
+// Lazy import Prisma to avoid connection issues during health checks
+let prisma: any;
+async function getPrisma() {
+  if (!prisma) {
+    const { prisma: p } = await import('@/lib/prisma');
+    prisma = p;
+  }
+  return prisma;
+}
 
 // POST /api/pesapal/ipn - Handle PesaPal IPN
 export async function POST(req: NextRequest) {
@@ -35,8 +44,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get Prisma client
+    const prismaClient = await getPrisma();
+
     // Find order by pesapalOrderId or order number
-    let order = await prisma.order.findFirst({
+    let order = await prismaClient.order.findFirst({
       where: {
         OR: [
           { pesapalOrderId: pesapal_transaction_tracking_id },
@@ -47,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     // If not found, try finding by ID
     if (!order && pesapal_merchant_reference.length >= 10) {
-      order = await prisma.order.findUnique({
+      order = await prismaClient.order.findUnique({
         where: { id: pesapal_merchant_reference },
       });
     }
@@ -83,7 +95,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update order
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await prismaClient.order.update({
       where: { id: order.id },
       data: {
         paymentStatus,
@@ -113,9 +125,20 @@ export async function POST(req: NextRequest) {
 
 // GET /api/pesapal/ipn - Health check
 export async function GET(req: NextRequest) {
-  return NextResponse.json({
-    success: true,
-    message: 'PesaPal IPN endpoint is active',
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    const response = NextResponse.json({
+      success: true,
+      message: 'PesaPal IPN endpoint is active',
+      timestamp: new Date().toISOString(),
+    });
+    return response;
+  } catch (error: any) {
+    return new NextResponse(JSON.stringify({
+      success: false,
+      error: 'Failed to process request'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 }
