@@ -1,4 +1,4 @@
-<!-- # 🪵 Gemark International Kenya Ltd
+# 🪵 Gemark International Kenya Ltd
 
 **Gemark International** is a premium e-commerce platform showcasing exquisite African woodwork and art, specializing in black wood ebony carvings, rose wood art, traditional masks, antiques, gemstones, and authentic African jewellery.
 
@@ -247,4 +247,4 @@ Total = Subtotal + Shipping + Tax
 ## 📜 License
 
 This project is licensed under the MIT License.
- -->
+
