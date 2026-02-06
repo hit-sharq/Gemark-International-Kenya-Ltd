@@ -424,14 +424,30 @@ async function submitOrder(
       
       try {
         errorData = JSON.parse(text);
-        errorMsg = errorData.error_description || errorData.message || errorData.error || errorData.Error || errorMsg;
+        // Handle various PesaPal error response formats
+        if (errorData.error?.message) {
+          errorMsg = errorData.error.message;
+        } else if (errorData.error_description) {
+          errorMsg = errorData.error_description;
+        } else if (errorData.message) {
+          errorMsg = errorData.message;
+        } else if (errorData.error) {
+          errorMsg = errorData.error;
+        }
         
         // Log detailed error info
         console.error('[PesaPal] Error details:', {
           status: response.status,
           error: errorMsg,
+          errorType: errorData.error?.error_type,
+          errorCode: errorData.error?.code,
           fullError: errorData
         });
+        
+        // Provide helpful suggestions based on error type
+        if (errorData.error?.code === 'amount_exceeds_default_limit') {
+          errorMsg = `${errorMsg} Try using Card payment method or contact PesaPal to increase your M-Pesa transaction limits.`;
+        }
       } catch {
         errorMsg = text.substring(0, 300);
       }
@@ -686,6 +702,34 @@ export async function POST(req: NextRequest) {
           const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
           
           try {
+            // First, verify that all artListingIds exist
+            const validItems: any[] = [];
+            for (const item of validatedItems) {
+              try {
+                const listing = await prisma.artListing.findUnique({
+                  where: { id: item.artListingId },
+                  select: { id: true, title: true, price: true }
+                });
+                if (listing) {
+                  validItems.push(item);
+                } else {
+                  console.warn('[PesaPal] Art listing not found, skipping item:', item.artListingId);
+                }
+              } catch (checkError) {
+                console.warn('[PesaPal] Could not verify item:', item.artListingId, checkError);
+                // Include item anyway, it might be valid
+                validItems.push(item);
+              }
+            }
+
+            if (validItems.length === 0) {
+              console.error('[PesaPal] No valid items in cart');
+              return NextResponse.json(
+                { success: false, error: 'No valid items in cart' },
+                { status: 400 }
+              );
+            }
+
             order = await prisma.order.create({
               data: {
                 userId: user.id,
@@ -704,7 +748,7 @@ export async function POST(req: NextRequest) {
                 status: 'PENDING',
                 paymentStatus: 'PENDING',
                 items: {
-                  create: validatedItems.map(item => ({
+                  create: validItems.map(item => ({
                     artListingId: item.artListingId,
                     title: item.title,
                     price: item.price,
@@ -718,13 +762,12 @@ export async function POST(req: NextRequest) {
             console.error('[PesaPal] Order creation error:', orderError.code, orderError.message);
             
             // Log detailed error for debugging
-            if (orderError.message) {
-              console.error('[PesaPal] Error details:', orderError.message);
-            }
-            
-            // Handle specific errors
-            if (orderError.code === 'P2002') {
-              console.error('[PesaPal] Duplicate order number - this should not happen');
+            if (orderError.code === 'P2003') {
+              console.error('[PesaPal] Foreign key constraint error - some items may not exist');
+            } else if (orderError.code === 'P2002') {
+              console.error('[PesaPal] Duplicate order number');
+            } else if (orderError.meta?.cause) {
+              console.error('[PesaPal] Error cause:', orderError.meta.cause);
             }
             
             // Don't fail the entire payment, just skip order creation
