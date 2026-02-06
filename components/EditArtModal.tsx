@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { updateArtListing } from "@/app/actions/art-actions"
+import { useDebounce } from "@/hooks/use-debounce"
 
 interface ArtListing {
   id: string
@@ -34,6 +35,8 @@ export default function EditArtModal({ isOpen, onClose, artId, onSuccess }: Edit
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState("")
   const [categories, setCategories] = useState<Array<{id: string, name: string, slug: string}>>([])
+  const [descriptionInput, setDescriptionInput] = useState("")
+  const debouncedDescription = useDebounce(descriptionInput, 150)
 
   useEffect(() => {
     if (isOpen && artId) {
@@ -48,6 +51,7 @@ export default function EditArtModal({ isOpen, onClose, artId, onSuccess }: Edit
         .then(([categoriesData, artData]) => {
           setCategories(categoriesData)
           setArt(artData)
+          setDescriptionInput(artData.description)
           setIsLoading(false)
         })
         .catch((error) => {
@@ -63,7 +67,9 @@ export default function EditArtModal({ isOpen, onClose, artId, onSuccess }: Edit
 
     if (!art) return
 
-    if (type === "checkbox") {
+    if (name === "description") {
+      setDescriptionInput(value)
+    } else if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked
       setArt({ ...art, [name]: checked })
     } else if (type === "number") {
@@ -72,6 +78,13 @@ export default function EditArtModal({ isOpen, onClose, artId, onSuccess }: Edit
       setArt({ ...art, [name]: value })
     }
   }
+
+  // Update art state when debounced description changes
+  useEffect(() => {
+    if (art && debouncedDescription !== art.description) {
+      setArt({ ...art, description: debouncedDescription })
+    }
+  }, [debouncedDescription, art])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

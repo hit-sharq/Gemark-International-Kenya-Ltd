@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import MainLayout from "../../../components/MainLayout"
+import { useDebounce } from "../../../hooks/use-debounce"
 import "./categories.css"
 
 interface Category {
@@ -22,10 +23,16 @@ export default function CategoriesManagement() {
     slug: "",
     description: "",
   })
+  const [descriptionInput, setDescriptionInput] = useState("")
+  const debouncedDescription = useDebounce(descriptionInput, 150)
 
   useEffect(() => {
     fetchCategories()
   }, [])
+
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, description: debouncedDescription }))
+  }, [debouncedDescription])
 
   const fetchCategories = async () => {
     try {
@@ -80,6 +87,7 @@ export default function CategoriesManagement() {
       slug: category.slug,
       description: category.description || "",
     })
+    setDescriptionInput(category.description || "")
     setIsModalOpen(true)
   }
 
@@ -135,6 +143,7 @@ export default function CategoriesManagement() {
               onClick={() => {
                 setEditingCategory(null)
                 setFormData({ name: "", slug: "", description: "" })
+                setDescriptionInput("")
                 setIsModalOpen(true)
               }}
             >
@@ -216,8 +225,8 @@ export default function CategoriesManagement() {
                   <label htmlFor="description">Description (Optional)</label>
                   <textarea
                     id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    value={descriptionInput}
+                    onChange={(e) => setDescriptionInput(e.target.value)}
                     rows={3}
                   />
                 </div>
