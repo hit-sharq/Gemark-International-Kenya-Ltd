@@ -613,6 +613,12 @@ export async function POST(req: NextRequest) {
 
     const { cartItems, shippingInfo, phoneNumber, paymentMethod } = body;
 
+    // Log received payment method
+    console.log('[PesaPal] Received payment method:', {
+      paymentMethod: paymentMethod,
+      type: typeof paymentMethod,
+    });
+
     // 4. Validate Cart
     if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
       return NextResponse.json(
@@ -852,15 +858,25 @@ export async function POST(req: NextRequest) {
     const exchangeRate = await getExchangeRate();
     console.log('[PesaPal] Using exchange rate:', exchangeRate);
 
-    // 16. Submit Order to PesaPal
-    console.log('[PesaPal] Submitting order to PesaPal...');
-    const notificationId = ipnResult.ipnId;
-    if (!notificationId) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to get IPN ID' },
-        { status: 500 }
-      );
-    }
+  // 16. Submit Order to PesaPal
+  console.log('[PesaPal] Submitting order to PesaPal...');
+  
+  // Log payment method details for debugging
+  console.log('[PesaPal] Payment method details:', {
+    paymentMethod: paymentMethod,
+    channel: paymentMethod ? getPesaPalChannel(paymentMethod) : 'ALL',
+    currency: 'USD',
+    totalAmount: total,
+    exchangeRate: exchangeRate,
+  });
+  
+  const notificationId = ipnResult.ipnId;
+  if (!notificationId) {
+    return NextResponse.json(
+      { success: false, error: 'Failed to get IPN ID' },
+      { status: 500 }
+    );
+  }
     
     const accessToken = tokenResult.token;
     if (!accessToken) {
